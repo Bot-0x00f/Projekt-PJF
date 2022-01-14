@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='https://css.gg/css' rel='stylesheet'>
+    <script type="text/javascript" src="script.js"></script>
+    <link href='style.css' rel='stylesheet' />
+</head>
+<body onselectstart="return false" onselect="return false">
+    <div id="fixedBar">
+        <ul id="buttons">
+            <li id="btnON">
+                <i class="gg-log-off" id="onOff"></i>
+            </li>
+            <li id="btnBRI">
+                <i class="gg-sun"></i>
+                <input type="range" min="0" max="255" value="0" id="brightness" />
+            </li>
+            <li id="mic">
+                <i class="gg-mic"></i>
+            </li>
+        </ul>
+    </div>
+    <div id="LEDs">
+        <h2>LEDs Control Panel</h2>
+        <div id="LEDsContainer">
+            <div id="LEDsList">
+
+            </div>
+        </div>
+    </div>
+    <div id="controls">
+        <div id="color">
+            <h2>Color picker</h2>
+            <canvas id="colorCanvas" class="color-canvas" width="200px" height="200px"></canvas>
+            <div id="colorControls">
+                <input type="number" value="0" min="0" max="255" id="redC" />
+                <label>Red</label>
+                <br />
+                <input type="number" value="0" min="0" max="255" id="greenC" />
+                <label>Green</label>
+                <br />
+                <input type="number" value="0" min="0" max="255" id="blueC" />
+                <label>Blue</label>
+                <div id="selectedColor"></div>
+            </div>
+            <div id="colorPresets">
+                <ul>
+                    <li style="background-color: #ff0000"> <i>255 0 0</i> </li>
+                    <li style="background-color: #ffa000"> <i>255 160 0</i> </li>
+                    <li style="background-color: #ffc800"> <i>255 200 0</i> </li>
+                    <li style="background-color: #ffe0a0"> <i>255 224 160</i> </li>
+                    <li style="background-color: #ffffff"> <i>255 255 255</i> </li>
+                    <li style="background-color: #000000"> <i>0 0 0</i> </li>
+                    <li style="background-color: #ff00ff"> <i>255 0 255</i> </li>
+                    <li style="background-color: #0000ff"> <i>0 0 255</i> </li>
+                    <li style="background-color: #00ffc8"> <i>0 255 200</i> </li>
+                    <li style="background-color: #08ff00"> <i>8 255 0</i> </li>
+                    <li style="background-color: #0f00bf"> <i>15 0 191</i> </li>
+                    <li style="background-color: #00bf0f"> <i>0 191 15</i> </li>
+                </ul>
+            </div>
+        </div>
+        <div id="effects">
+            <h2>Effects</h2>
+            <ul>
+            </ul>
+        </div>
+        <div id="palettes">
+            <h2>Palettes</h2>
+            <ul>
+            </ul>
+        </div>
+    </div>
+
+    <div id="enterIP">
+        <p>Last IP Addres: 192.168.8.123</p>
+        <p>Enter the IP address of WLED device or use last one</p>
+        <input type="text" id="IPaddress" />
+        <br />
+        <input type="button" id="btnLast" value="Use last used IP address" />
+        <input type="button" id="btnEnter" value="Enter IP address" />
+    </div>
+</body>
+</html>
