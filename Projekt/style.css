@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200&display=swap');
+
+body {
+margin: 0px;
+color: white;
+font-family: 'Kanit', sans-serif;
+background-color: #C5C4D8;
+}
+
+div {
+box-sizing: border-box;
+}
+
+#fixedBar {
+display: inline-block;
+position: fixed;
+left: 0px;
+top: 80px;
+height: 100%;
+width: 50pt;
+}
+
+#LEDs {
+display: inline-block;
+position: fixed;
+left: 0pt;
+top: 0px;
+width: 100%;
+height: 60pt;
+}
+
+#LEDs, #fixedBar {
+background-color: #353177;
+}
+
+#controls {
+color: black;
+display: inline-block;
+position: relative;
+top: 100pt;
+left: 100pt;
+width: calc(100vw - 150pt);
+height: calc(100vh - 150pt);
+padding: 20pt;
+background-color: rgba(0,0,0,0);
+border-radius: 10px;
+border: solid 1px #ffffff78;
+box-shadow: 8px 8px 24px 0px rgba(66, 68, 90, 1);
+overflow-y: scroll;
+}
+
+#buttons {
+padding-left: 0pt;
+}
+
+#buttons li {
+
+display: inline-block;
+width: 40px;
+height: 40px;
+margin: 10pt 0pt;
+color: white;
+margin: 9pt 0pt 10pt 18pt
+}
+
+#buttons li i {
+	transform: scale(2);
+}
+
+#buttons li:hover {
+	color: grey;
+}
+
+#brightness {
+	display: none;
+	margin-left: 40px;
+	margin-top: -17px;
+}
+
+#btnBRI:hover input{
+	display: block;
+
+}
+
+::-webkit-scrollbar {
+	width: 0px;
+	height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+background: #353177;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+background: #555;
+}
+
+#LEDs h2 {
+display: inline-block;
+float: left;
+margin: 14pt 20pt 0pt 20pt;
+color: #FFFFFF;
+text-shadow: #FFF 0px 0px 5px, #FFF 0px 0px 10px, #FFF 0px 0px 15px, #FF2D95 0px 0px 20px, #FF2D95 0px 0px 30px, #FF2D95 0px 0px 40px, #FF2D95 0px 0px 50px, #FF2D95 0px 0px 75px;
+}
+
+#LEDsContainer {
+height: 100%;
+padding-top: 3px;
+overflow: scroll;
+border-left: solid 2px rgb(255 255 255 / 19%);
+}
+
+#LEDsList {
+margin: 0px 0px 0px 20px;
+padding: 0px;
+height: 100%;
+display: flex;
+flex-direction: row;
+flex-wrap: nowrap;
+align-items: center;
+}
+
+#LEDsList div {
+flex-shrink: 0;
+width: 16pt;
+height: 16pt;
+margin-right: 10px;
+text-align: center;
+line-height: 20px;
+border-radius: 2px;
+font-weight: bold;
+}
+
+#color{
+display: inline-block;
+position: absolute;
+top: 20pt;
+left: 40px;
+}
+#color h2{ 
+margin: 2pt 0pt; 
+text-align: center;
+}
+
+#colorControls{
+float:right;
+margin-left: 10pt;
+}
+
+#selectedColor {
+width: 90pt;
+height: 90pt;
+background-color: black;
+margin: 4pt 0pt 0pt 0pt;
+}
+
+#effects{
+display: inline-block;
+position: absolute;
+top: 20pt;
+left: 300pt;
+}
+
+#effects h2 {
+margin: 0pt 0pt 2pt 0pt;
+}
+
+#effects ul {
+margin: 0pt 0pt;
+padding: 0pt;
+height: 200pt;
+overflow: scroll;
+}
+
+#effects li {
+display: block;
+background-color: chocolate;
+border: solid 1px black;
+margin-bottom: 4pt;
+color: white;
+}
+
+#palettes {
+display: inline-block;
+position: absolute;
+top: 20pt;
+left: 500pt;
+}
+
+#palettes h2{
+margin: 0pt 0pt 2pt 0pt;
+}
+
+#palettes ul {
+margin: 0pt 0pt;
+padding: 0pt;
+height: 200pt;
+overflow: scroll;
+}
+
+#palettes li {
+display: block;
+background-color: chocolate;
+border: solid 1px black;
+margin-bottom: 4pt;
+color: white;
+}
+
+#colorPresets ul {
+display: flex;
+margin: 0px;
+padding: 24px 16pt;
+width: 200pt;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+}
+
+#colorPresets li {
+display: inline-block;
+width: 26pt;
+height: 26pt;
+border-radius: 14pt;
+flex-shrink: 0;
+margin: 5px;
+border: solid 1px rgba(0,0,0,0.31);
+}
+
+#colorPresets li i{
+display:none;
+}
+
+#colorPresets li:hover{
+opacity: 0.5;
+}
+
+#enterIP{
+display: none;
+position: absolute;
+left: 0px;
+top: 0px;
+width: 100%;
+height: 100%;
+background-color: rgba(1,1,1,0.5);
+z-index: 1000;
+backdrop-filter: blur(5px);
+}
