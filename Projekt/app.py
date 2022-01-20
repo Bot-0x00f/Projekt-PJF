@@ -1,4 +1,5 @@
 import json
+import math
 import time
 import tornado.httpserver
 import tornado.websocket
@@ -9,11 +10,10 @@ import webbrowser
 import threading
 import numpy as np
 import pyaudio
-
-#normalizacja mocy czestotliwosci - wynik z tabeli / CHUNK
+import colorsys
 
 address = "http://192.168.8.123/json"
-CHUNK = 512 #wiecej probek dac zeby nie bylo 'dyskoteki'
+CHUNK = 4096
 RATE = 44100
 INTERVAL = 1
 TIMEOUT = 10
@@ -37,9 +37,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print('new connection')
 
     def on_message(self, message):
-        #print('message received:  {}'.format(message) )
+        print('message received:  {}'.format(message) )
         global fftThread
         global fftThreadOn
+        global numLeds
+        global address
 
         n = message.count(' ')
         if n == 0:
@@ -52,32 +54,40 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             a,b,c,d = message.split(" ")
 
         if a == 'onoff':
-            with(requestsLock):
+            with requestsLock:
                 state = requests.get(address+"/state")
                 turnedOn = state.json()['on']
                 requests.post(address, json={'on': not turnedOn})
         elif a == 'state':
-            with(requestsLock):
+            with requestsLock:
                 state = requests.get(address).text
             state = '{"cmd": "state",' + state[1:]
             self.write_message(json.loads(state))
+            state = json.loads(state)
+            numLeds = state["info"]["leds"]["count"]
         elif a == 'bri':
-            with(requestsLock):
+            with requestsLock:
                 requests.post(address, json={'bri':int(b)} )
         elif a == 'col':
-            with(requestsLock):
+            with requestsLock:
                 requests.post(address, json={"seg":[{"col":[[int(b),int(c),int(d)]]}]} )
         elif a == 'fx':
-            with(requestsLock):
+            with requestsLock:
                 requests.post(address, json={"seg":[{"fx":int(b)}]})
         elif a == 'pal':
-            with(requestsLock):
+            with requestsLock:
                 requests.post(address, json={"seg": [{"pal": int(b)}]})
         elif a == "lv":
-            with(requestsLock):
+            with requestsLock:
                 liveState = requests.get(address+"/json/live").text
             liveState = '{"cmd":"lv",' + liveState[1:]
             self.write_message(json.loads(liveState))
+        elif a == "spd":
+            with requestsLock:
+                requests.post(address, json={"seg":[{"sx":int(b)}]} )
+        elif a == "intens":
+            with requestsLock:
+                requests.post(address, json={"seg":[{"ix":int(b)}]} )
         elif a == "mic":
             if not fftThread.is_alive():
                 fftThreadOn = True
@@ -85,6 +95,16 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 fftThread.start()
             else:
                 fftThreadOn = False
+        elif a == "set":        #ustawienia
+            if b=="address":    #adres urzadzenia WLED
+                settings = open("settings.txt", "tw")
+                settings.write("address=http://"+c+"/json\n")
+                address = "address=http://"+c+"/json"
+                settings.close()
+            elif b=="ledsamount":
+                with requestsLock:
+                    requests.post(address, json={"seg":[{"len": int(c)}]} )
+
 
     def on_close(self):
         global fftThreadOn
@@ -102,8 +122,12 @@ def callback(in_data, frame_count, time_info, status):
 
 
 def mapValues(x, inMin, inMax, outMin, outMax):
-    return np.floor((x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin)
-
+    a = np.floor((x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin)
+    if a > outMax:
+        a = outMax
+    elif a < outMin:
+        a = outMin
+    return a
 
 def fftThreadFunction():
     global fftThreadOn
@@ -116,39 +140,60 @@ def fftThreadFunction():
 
     VARS['stream'].start_stream()
     while VARS['audioData'].size == 0:
+        print("wait")
         time.sleep(0.1)
-    last = 0
+    sections = [0 for i in range(1, 9)]         #1 sekcja - 1 LED
+    secLen = int( (CHUNK/2+1)/numLeds/2 )       # ilosc czestotliwosci na sekcje
+    #secLen = 30
+    secMax = 0
+    RGBData = {"seg":{ "i":[ [0,0,0] for i in range(0,numLeds) ] }}
     while fftThreadOn:
         fftData = np.fft.rfft(VARS['audioData'])
         fftData = np.absolute(fftData)
-        freq = np.fft.rfftfreq(VARS['audioData'].size, d=1. / RATE)
-        a, = np.where(fftData == max(fftData))
-        a = a[0]
-        if last == 0:
-            with(requestsLock):
-                requests.post(address, json={"seg":[{"col":[[int(0),int(0),int(0)]]}]} )
-                requests.post(address, json={"seg": {"i": [int(mapValues(a,0,75,0,8)), [0, 0, 255]]}})
-        last = (last + 1) % 10
+        fftData = fftData/CHUNK
+        for i in range(0, numLeds):
+            a = int(secLen*i)
+            b = int(secLen*(i+1)-1)
+            #print(a,b)
+            secMax = max(fftData[int(a):int(b)])
+            #print(secMax)
+            color = colorsys.hsv_to_rgb(( mapValues(secMax, 0, 10000, 0, 360) + 240)/360, 1, 1)
+            r,g,b = color
+            #print("Mapowanie ",mapValues(secMax, 0, max(fftData), 0, 360), int(r*255), int(g*255), int(b*255))
+            if secMax < 1000:
+                r *= secMax/1000
+                g *= secMax/1000
+                b *= secMax/1000
+            RGBData["seg"]["i"][i][0] = int(r*255)
+            RGBData["seg"]["i"][i][1] = int(g*255)
+            RGBData["seg"]["i"][i][2] = int(b*255)
+        with requestsLock:
+            requests.post(address, json=RGBData)
+
 
 fftThread = threading.Thread(target=fftThreadFunction)
 
 application = tornado.web.Application([
     (r'/ws', WSHandler),
     (r'/', MainHandler),
+    (r"/svg/(.*)", tornado.web.StaticFileHandler, {"path": "./svg"},),
     (r"/(style\.css)",tornado.web.StaticFileHandler, {"path": "./"},),
     (r"/(script\.js)",tornado.web.StaticFileHandler, {"path": "./"},),
 ], debug=False )
 
-if __name__ == "__main__":
+def getSettings():
+    global address
     settings = open("settings.txt", "tr+")
-    settings.seek(0,2)
+    settings.seek(0, 2)
     if settings.tell() == 0:
-        settings.write("address=http://192.168.8.123/json") #domyslny adres
+        settings.write("address=http://192.168.8.123/json")  # domyslny adres
     settings.seek(0, 0)
-    address = settings.readline()
-    address = address.split("=")[1]
+    address = settings.readlines()[0]
+    address = address.split("=")[1][:-1]
     settings.close()
-    print(address, type(address))
+
+if __name__ == "__main__":
+    getSettings()
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8888)
     print('*** Websocket Server Started ***')

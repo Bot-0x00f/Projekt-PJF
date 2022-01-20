@@ -1,22 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href='https://css.gg/css' rel='stylesheet'>
     <script type="text/javascript" src="script.js"></script>
     <link href='style.css' rel='stylesheet' />
 </head>
 <body onselectstart="return false" onselect="return false">
     <div id="fixedBar">
         <ul id="buttons">
-            <li id="btnON">
-                <i class="gg-log-off" id="onOff"></i>
+            <li class="button" id="btnON">
+                <img src="svg/log-off.svg" id="onOff"/>
             </li>
-            <li id="btnBRI">
-                <i class="gg-sun"></i>
-                <input type="range" min="0" max="255" value="0" id="brightness" />
+            <li class="button" id="btnBRI">
+                <img src="svg/sun.svg"/>
+                <div class="details">
+                    <p>Brightness</p>
+                    <input type="range" min="0" max="255" value="0" id="brightness" />
+                </div>
             </li>
-            <li id="mic">
-                <i class="gg-mic"></i>
+            <li class="button" id="btnMic">
+                <img src="svg/mic.svg"/>
+            </li>
+            <li class="button" id="btnSpeed">
+                <img src="svg/stopwatch.svg" />
+                <div class="details">
+                    <p>Speed</p>
+                    <input type="range" min="0" max="255" value="127" id="speed" />
+                </div>
+            </li>
+            <li class="button" id="btnIntensity">
+                <img src="svg/crowdfire.svg" />
+                <div class="details">
+                    <p>Intensity</p>
+                    <input type="range" min="0" max="255" value="127" id="intensity" />
+                </div>
+            </li>
+            <li class="button" id="btnSettings">
+                <img src="svg/menu.svg" />
+                <div id="settings">
+                    <p>WLED device IP address</p>
+                    <input type="text" id="setAddress" /><button id="apply1">Apply</button>
+                    <p>Number of LEDs</p>
+                    <input type="number" id="setLEDsAmount" /><button id="apply2">Apply</button>
+                    <p>Transition time</p>
+                    <input type="number" id="setTransTime" /><button id="apply3">Apply</button>
+                    <p id="about">LEDs Control Panel author: Paweł Barcikowski</p>
+                </div>
             </li>
         </ul>
     </div>
@@ -25,6 +53,9 @@
         <div id="LEDsContainer">
             <div id="LEDsList">
 
+            </div>
+            <div id="currentEffect">
+                <p>Effect: Breath</p>
             </div>
         </div>
     </div>
@@ -70,15 +101,6 @@
             <ul>
             </ul>
         </div>
-    </div>
-
-    <div id="enterIP">
-        <p>Last IP Addres: 192.168.8.123</p>
-        <p>Enter the IP address of WLED device or use last one</p>
-        <input type="text" id="IPaddress" />
-        <br />
-        <input type="button" id="btnLast" value="Use last used IP address" />
-        <input type="button" id="btnEnter" value="Enter IP address" />
     </div>
 </body>
 </html>

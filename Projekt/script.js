@@ -1,6 +1,5 @@
 var state;
 var info;
-var test;
 
 function init(evt) {
     info = JSON.parse(evt.data);
@@ -17,6 +16,8 @@ function init(evt) {
     }
 
     document.getElementById("brightness").value = state['bri'];
+    document.getElementById("intensity").value = state['seg'][0].ix;
+    document.getElementById("speed").value = state['seg'][0].sx;
     document.getElementById("selectedColor").style = `background-color: rgb(${state['seg'][0].col[0][0]},${state['seg'][0].col[0][1]},${state['seg'][0].col[0][2]})`; //wskaŸnik koloru
 
     var effects = document.getElementById("effects").children[1];
@@ -37,6 +38,17 @@ function init(evt) {
         li.value = i;
         palettes.appendChild(li);
     }
+
+    currentEffect = document.getElementById("currentEffect");
+    if (state["seg"][0]["fx"] > 0) {   //efekt inny od Solid
+        currentEffect.children[0].innerText = "Effect: " + info["effects"][state["seg"][0]["fx"]];
+        currentEffect.style.visibility = "visible";
+        currentEffect.style.opacity = "1";
+    }else{
+        currentEffect.style.visibility = "hidden";
+        currentEffect.style.opacity = "0";
+    }
+    
 }
 
 window.onload = function () {
@@ -140,18 +152,46 @@ window.onload = function () {
         ws.send(`bri ${brightInput.value}`);
     }
 
+    //szybkosc efektu
+    var speedInput = document.getElementById("speed");
+
+    speedInput.onchange = function (e) {
+        ws.send(`spd ${speedInput.value}`);
+    }
+
+    //intensywnoœæ efektu
+    var intensInput = document.getElementById("intensity");
+
+    intensInput.onchange = function (e) {
+        ws.send(`intens ${intensInput.value}`);
+    }
+
     //wybór efektu
     effectsList = document.getElementById("effects");
 
     effectsList.onmousedown = function (e) {
-        ws.send(`fx ${e.target.value}`);
+        if (typeof (e.target.value) != 'undefined') {
+            effects = info["effects"];
+            currentEffect = document.getElementById("currentEffect");
+            if (e.target.value > 0) {   //efekt inny od Solid
+                currentEffect.children[0].innerText = "Effect: " + effects[e.target.value];
+                currentEffect.style.visibility = "visible";
+                currentEffect.style.opacity = "1";
+            } else {
+                currentEffect.style.visibility = "hidden";
+                currentEffect.style.opacity = "0";
+            }
+            ws.send(`fx ${e.target.value}`);
+        }
     }
 
     //wybór palety
     palettesList = document.getElementById("palettes");
 
     palettesList.onmousedown = function (e) {
-        ws.send(`pal ${e.target.value}`);
+        if (typeof (e.target.value) != 'undefined') {
+            ws.send(`pal ${e.target.value}`);
+        }
     }
 
     //wybór predefiniowanego koloru
@@ -162,9 +202,32 @@ window.onload = function () {
         ws.send(`col ${e.target.children[0].innerText}`);
     }
 
-    document.getElementById("mic").onmousedown = function (e) {
+    document.getElementById("btnMic").onmousedown = function (e) {
         ws.send("mic");
     }
- 
+
+    //USTAWIENIA
+    //ustawienie adresu IP urzadzenia
+    document.getElementById("apply1").onclick = function (e) {
+        temp = document.getElementById("setAddress");
+        addressPattern = /^[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}$/;
+        if (addressPattern.test(temp.value)) {
+            temp.style = "border: inherit";
+            ws.send("set address " + temp.value);
+        } else {
+            temp.style = "border: solid 4px red";
+        }
+    }
+        
+    //ustawienie ilosci LEDow
+    document.getElementById("apply2").onclick = function (e) {
+        temp = document.getElementById("setLEDsAmount");
+        if (temp.value >= 0) {
+            temp.style = "border: inherit";
+            ws.send("set ledsamount " + temp.value);
+        } else {
+            temp.style = "border: solid 4px red";
+        }
+    }
 }
 
